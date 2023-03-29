@@ -62,11 +62,14 @@ public class Main {
 
                     DistanceWithSpecies check = new DistanceWithSpecies(euclideanDistance(testLine, trainLine), trainLine[trainLine.length - 1]);
 
-                    for (int i = 0; i < knn.length; i++) {
-                        if (check.getDistance() < knn[i].getDistance()) {
-                            knn[i] = check;
-                            break;
+                    int maxIndex = 0;
+                    for (int i = 0; i < knn.length - 1; i++) {
+                        if(knn[i + 1].getDistance() > knn[i].getDistance()){
+                            maxIndex = i + 1;
                         }
+                    }
+                    if(check.getDistance() < knn[maxIndex].getDistance()){
+                        knn[maxIndex] = check;
                     }
                 }
 
