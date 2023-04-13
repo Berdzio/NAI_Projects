@@ -12,33 +12,33 @@ public class Main {
 
     public static void main(String[] args) {
 
-        int k = 3;
-        int lineCounter = 0;
-        int precison = 0;
-        String testFile = "test.txt";
-        String result = "";
-        String answerer = "";
+
 
         System.out.println("1 - podaj k");
         System.out.println("2 - podaj swoje dane");
         System.out.println("3 - zakończ program");
 
-
         Scanner optionScanner = new Scanner(System.in);
         int option = optionScanner.nextInt();
 
-        if(option == 1){
+        if (option == 1) {
             System.out.println("podaj k: ");
-            k = optionScanner.nextInt();
-        }
-        else if(option == 2){
-            System.out.println("podaj ścieżkę do pliku z danymi");
-            testFile = optionScanner.next();
-        }
-        else if(option == 3){
+            int kn = optionScanner.nextInt();
+            kChosen(kn);
+        } else if (option == 2) {
+            userData();
+        } else if (option == 3) {
             System.exit(1);
         }
 
+
+    }
+
+    public static void userData(){
+        int k = 3;
+        String[] userLine = new String[5];
+        String result = "";
+        String answerer = "";
 
         DistanceWithSpecies test = new DistanceWithSpecies(100, "test");
         DistanceWithSpecies[] knn = new DistanceWithSpecies[k];
@@ -46,15 +46,92 @@ public class Main {
         Arrays.fill(knn, test);
 
 
+
+        try {
+            Scanner testScanner = new Scanner(System.in);
+            System.out.println("podaj swoje dane");
+            for (int i = 0; i < 5; i++) {
+                String t = testScanner.next();
+                userLine[i] = t;
+            }
+
+                Scanner trainScanner = new Scanner(new File("Pro_1/train.txt"));
+
+                while (trainScanner.hasNext()) {
+
+                    String[] trainLine = trainScanner.nextLine().split(",");
+
+                    DistanceWithSpecies check = new DistanceWithSpecies(euclideanDistance(userLine, trainLine), trainLine[trainLine.length - 1]);
+
+                    int maxIndex = 0;
+                    for (int i = 0; i < knn.length - 1; i++) {
+                        if(knn[i + 1].getDistance() > knn[i].getDistance()){
+                            maxIndex = i + 1;
+                        }
+                    }
+                    if(check.getDistance() < knn[maxIndex].getDistance()){
+                        knn[maxIndex] = check;
+                    }
+                }
+
+                int freq = 0;
+
+
+                for (int i = 0; i < k; i++) {
+                    int count = 0;
+                    for (int j = i + 1; j < k; j++) {
+                        if (knn[j].getSpecies().equals(knn[i].getSpecies())) {
+                            count++;
+                        }
+                    }
+
+                    if (count >= freq) {
+                        result = knn[i].getSpecies();
+                        freq = count;
+                    }
+                }
+
+                answerer = userLine[userLine.length - 1];
+
+                trainScanner.close();
+                Arrays.fill(knn, test);
+
+                System.out.println("Prediction: " + result + " correct answerer: " + answerer);
+
+
+        }
+        catch (FileNotFoundException e){}
+
+        Arrays.fill(knn, test);
+    }
+
+
+    public static void kChosen(int kn){
+
+        int k = kn;
+        int lineCounter = 0;
+        int precison = 0;
+        String testFile = "Pro_1/test.txt";
+        String result = "";
+        String answerer = "";
+
+        DistanceWithSpecies test = new DistanceWithSpecies(100, "test");
+        DistanceWithSpecies[] knn = new DistanceWithSpecies[k];
+
+        Arrays.fill(knn, test);
+
+
+
         try {
             Scanner testScanner = new Scanner(new File(testFile));
 
 
             while (testScanner.hasNext()) {
+
                 lineCounter++;
                 String[] testLine = testScanner.nextLine().split(",");
 
-                Scanner trainScanner = new Scanner(new File("train.txt"));
+                Scanner trainScanner = new Scanner(new File("Pro_1/train.txt"));
 
                 while (trainScanner.hasNext()) {
 
@@ -106,7 +183,11 @@ public class Main {
             System.out.println("Precision: " + precison + "/" + lineCounter);
 
         }
-        catch (FileNotFoundException e){}
+        catch (FileNotFoundException e){
+            System.out.println("błąd pliku");
+        }
+
+
     }
 
     public static double euclideanDistance(String[] testArr, String[] trainArr){
